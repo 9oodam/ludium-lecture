@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Voting.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract Voting {\n    struct Candidate {\n        string name;\n        uint voteCount;\n    }\n\n    address public owner;\n    mapping(address => bool) public voters;\n    Candidate[] public candidates;\n    address[] public voterList;\n\n    constructor(string[] memory candidateNames) {\n        owner = msg.sender; // 배포자를 owner로 설정\n        for (uint i = 0; i < candidateNames.length; i++) {\n            candidates.push(Candidate({\n                name: candidateNames[i],\n                voteCount: 0\n            }));\n        }\n    }\n\n    function vote(uint candidateIndex) public {\n        require(!voters[msg.sender], \"Already voted.\");\n        require(candidateIndex < candidates.length, \"Invalid candidate.\");\n\n        voters[msg.sender] = true;\n        voterList.push(msg.sender); // 투표한 주소를 목록에 추가\n        candidates[candidateIndex].voteCount++;\n    }\n\n    function getCandidates() public view returns (Candidate[] memory) {\n        return candidates;\n    }\n\n    function resetVotes() public {\n        require(msg.sender == owner, \"Only owner can reset votes.\");\n        for (uint i = 0; i < candidates.length; i++) {\n            candidates[i].voteCount = 0;\n        }\n        for (uint i = 0; i < voterList.length; i++) {\n            voters[voterList[i]] = false;\n        }\n        delete voterList; // 투표자 목록 초기화\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
